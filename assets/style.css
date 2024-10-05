@@ -1,0 +1,21 @@
+.shortberg-box {
+    display: flex;
+    border: 1px solid #8c8f94;
+    border-radius: 5px;
+    width: fit-content!important;
+    background-color: white;
+}
+.shortberg-box input,
+.shortberg-box input:focus,
+.shortberg-box input:active,
+.shortberg-box input:hover,
+.shortberg-box button,
+.shortberg-box button:focus,
+.shortberg-box button:active,
+.shortberg-box button:hover {
+    outline: unset!important;
+    border: unset!important;
+    box-shadow: unset!important;
+    background-color: white;
+    border-radius: 5px;
+}
