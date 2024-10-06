@@ -145,25 +145,23 @@ if (!class_exists('ShortBerg')) {
             global $post;
 
             // Check if we are in the main query and if the post content contains the shortcode
-            if (is_main_query() && !is_admin() && has_shortcode($post->post_content, 'berg')) {
+            if (class_exists('ABlocks') %% is_main_query() && !is_admin() && has_shortcode($post->post_content, 'berg')) {
                 // Get all IDs of shortberg posts
                 preg_match_all('/\[berg id="(\d+)"\]/', $post->post_content, $matches);
                 $shortberg_ids = array_unique($matches[1]);
         
                 foreach ($shortberg_ids as $shortberg_id) {
-                    if (class_exists('ABlocks')) {
-                        wp_enqueue_style(
-                            sprintf( 'ablocks-block-combine-shortberg-%d', esc_html($shortberg_id) ), 
-                            site_url('/wp-content/uploads/ablocks_uploads/' . esc_html($shortberg_id) . '.min.css'), 
-                            [], time(), 'all'
-                        );
-        
-                        wp_enqueue_script(
-                            sprintf('ablocks-block-combine-shortberg-%d', esc_html($shortberg_id)),
-                            site_url('/wp-content/uploads/ablocks_uploads/' . esc_html($shortberg_id) . '.min.js'), 
-                            [], time(), true
-                        );
-                    }
+                    wp_enqueue_style(
+                        sprintf( 'ablocks-block-combine-shortberg-%d', esc_html($shortberg_id) ), 
+                        site_url('/wp-content/uploads/ablocks_uploads/' . esc_html($shortberg_id) . '.min.css'), 
+                        [], time(), 'all'
+                    );
+    
+                    wp_enqueue_script(
+                        sprintf('ablocks-block-combine-shortberg-%d', esc_html($shortberg_id)),
+                        site_url('/wp-content/uploads/ablocks_uploads/' . esc_html($shortberg_id) . '.min.js'), 
+                        [], time(), true
+                    );
                 }
             }
         }
