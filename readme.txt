@@ -7,8 +7,8 @@ Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://example.com/donate
-GitHub Plugin URI: https://github.com/yourusername/shortberg
+Donate link: https://paypal.me/dwindown
+GitHub Plugin URI: https://github.com/dwindiramadhana/shortberg
 
 ShortBerg allows you to manage your Gutenberg templates easily. Create templates and insert them anywhere in your site using a simple shortcode.
 
