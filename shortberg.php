@@ -1,22 +1,21 @@
 <?php
 /**
- * Plugin Name:       ShortBerg
- * Description:       Manage your Gutenberg templates and put any templates anywhere 
- * Version:           1.0.0
- * Author:            Dwindi Ramadhana
- * Author URI:        https://dwindi.com
- * Text Domain:       shortberg
- * Donate Link:       https://paypal.me/dwindown
- * Domain Path:       /languages
- * License:           GPL-2.0+
- * License URI:       http://www.gnu.org/licenses/gpl-2.0.html GNU General Public License v3.0
+ * Plugin Name:         ShortBerg
+ * Description:         Manage your Gutenberg templates and put any templates anywhere 
+ * Version:             1.0.0
+ * Author:              Dwindi Ramadhana
+ * Author URI:          https://dwindi.com
+ * Text Domain:         shortberg
+ * Donate Link:         https://paypal.me/dwindown
+ * Domain Path:         /languages/
+ * License:             GNU General Public License v2.0
+ * License URI:         http://www.gnu.org/licenses/gpl-2.0.html
  * 
- * Requires at least: 6.0.0
- * Tested up to: 6.6.2
+ * Requires at least:   6.0.0
+ * Tested up to:        6.6.2
+ * Requires PHP:        7.4
  *
- * Copyright: © 2024 Dwindi Ramadhana.
- * License: GNU General Public License v2.0
- * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * Copyright:       © 2024 Dwindi Ramadhana.
  */
 
 // Exit if accessed directly
@@ -33,16 +32,16 @@ if (!class_exists('ShortBerg')) {
     class ShortBerg {
 
         public function __construct() {
-            add_action('init', [$this, 'cpt']);
-            add_shortcode('berg', [$this, 'shortcode']);
-            add_action('add_meta_boxes', [$this, 'add_meta_boxes']);
-            add_filter('manage_shortberg_posts_columns', [$this, 'set_custom_columns']);
-            add_action('manage_shortberg_posts_custom_column', [$this, 'custom_column_content'], 10, 2);
-            add_action('admin_enqueue_scripts', [$this, 'admin_scripts']);
-            add_action('wp_enqueue_scripts', [$this, 'wp_scripts']);
+            add_action('init', [$this, 'shortberg_cpt']);
+            add_shortcode('berg', [$this, 'shortberg_shortcode']);
+            add_action('add_meta_boxes', [$this, 'shortberg_add_meta_boxes']);
+            add_filter('manage_shortberg_posts_columns', [$this, 'shortberg_set_custom_columns']);
+            add_action('manage_shortberg_posts_custom_column', [$this, 'shortberg_custom_column_content'], 10, 2);
+            add_action('admin_enqueue_scripts', [$this, 'shortberg_admin_scripts']);
+            add_action('wp_enqueue_scripts', [$this, 'shortberg_wp_scripts']);
         }
 
-        public function cpt() {
+        public function shortberg_cpt() {
             $labels = array (
                 "name"          => _x('Templates', 'shortberg'),
                 "singular_name" => _x('Template', 'shortberg'),
@@ -83,7 +82,7 @@ if (!class_exists('ShortBerg')) {
             register_post_type("shortberg", $args);
         }
 
-        public function shortcode($atts) {
+        public function shortberg_shortcode($atts) {
 
             $atts = shortcode_atts(['id' => null], $atts, 'berg');
             $post_id = intval($atts['id']);
@@ -102,18 +101,18 @@ if (!class_exists('ShortBerg')) {
             return ob_get_clean();
         }
 
-        public function add_meta_boxes() {
-            add_meta_box('berg_meta', esc_html__('Template Shortcode', 'shortberg'), [$this, 'render_meta_box'], 'shortberg', 'side', 'default');
+        public function shortberg_add_meta_boxes() {
+            add_meta_box('berg_meta', esc_html__('Template Shortcode', 'shortberg'), [$this, 'shortberg_render_meta_box'], 'shortberg', 'side', 'default');
         }
 
-        public function render_meta_box($post) {
+        public function shortberg_render_meta_box($post) {
         
             // Retrieve the existing shortcode value
             $template_id = esc_html($post->ID);
             $full_shortcode = sprintf('[berg id="%d"]', intval($template_id));
         
             // Prepare the HTML output
-            $output = sprintf(
+            echo sprintf(
                 '<div class="components-input-control__container shortberg-box">
                     <input autocomplete="off" spellcheck="false" aria-describedby="inspector-input-control-%d__help" class="components-input-control__input" id="inspector-input-control-%d" type="text" value="%s" readonly>
                     <span class="components-input-control__suffix">
@@ -131,21 +130,18 @@ if (!class_exists('ShortBerg')) {
                 esc_attr__('Copy', 'shortberg'), // for button aria-label
                 esc_attr($full_shortcode) // for data-clipboard-text
             );
-        
-            // Output the final HTML
-            echo $output;
         }
 
-        public function admin_scripts() {
+        public function shortberg_admin_scripts() {
             wp_enqueue_style('shortberg-style', SHORTBERG_URL . 'assets/style.css', [], SHORTBERG_VERSION, 'all');
             wp_enqueue_script('shortberg-copy-interaction', SHORTBERG_URL . 'assets/copy.js', [], SHORTBERG_VERSION, true );
         }        
 
-        public function wp_scripts() {
+        public function shortberg_wp_scripts() {
             global $post;
 
             // Check if we are in the main query and if the post content contains the shortcode
-            if (class_exists('ABlocks') %% is_main_query() && !is_admin() && has_shortcode($post->post_content, 'berg')) {
+            if (class_exists('ABlocks') && is_main_query() && !is_admin() && has_shortcode($post->post_content, 'berg')) {
                 // Get all IDs of shortberg posts
                 preg_match_all('/\[berg id="(\d+)"\]/', $post->post_content, $matches);
                 $shortberg_ids = array_unique($matches[1]);
@@ -166,18 +162,18 @@ if (!class_exists('ShortBerg')) {
             }
         }
 
-        public function set_custom_columns($columns) {
+        public function shortberg_set_custom_columns($columns) {
             $columns['shortcode'] = esc_html__('Shortcode', 'shortberg');
             return $columns;
         }
 
-        public function custom_column_content($column, $post_id) {
+        public function shortberg_custom_column_content($column, $post_id) {
             if ($column == 'shortcode') {
                 $template_id = esc_html($post_id);
                 $full_shortcode = sprintf('[berg id="%s"]', $template_id);
                 
                 // Prepare the HTML output
-                $output = sprintf(
+                echo sprintf(
                     '<div class="components-input-control__container shortberg-box">
                         <input autocomplete="off" spellcheck="false" aria-describedby="inspector-input-control-%d__help" class="components-input-control__input" id="inspector-input-control-%d" type="text" value="%s" readonly>
                         <span class="components-input-control__suffix">
@@ -195,9 +191,6 @@ if (!class_exists('ShortBerg')) {
                     esc_attr__('Copy', 'shortberg'), // for button aria-label
                     esc_attr($full_shortcode) // for data-clipboard-text
                 );
-        
-                // Output the final HTML
-                echo $output;
             }
         }
 
